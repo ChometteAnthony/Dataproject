@@ -1,0 +1,45 @@
+from colorthief import ColorThief
+import os
+import json
+
+
+# Définir une liste de tags prédéfinis
+tags = ["#chat", "#fleur", "#montagne", "#paysage", "#nourriture", "#ville", "#voyage"]
+
+
+# Parcourir chaque image dans le dossier "images"
+for filename in os.listdir("images"):
+    if filename.endswith(".jpg") or filename.endswith(".png") or filename.endswith(".jpeg"):
+        
+        # Ouvrir l'image avec la bibliothèque ColorThief
+        color_thief = ColorThief(os.path.join("images", filename))
+        
+        # Extraire la couleur prédominante de l'image
+        dominant_color = color_thief.get_color(quality=1)
+        
+        # Enregistrer l'information dans un dictionnaire
+        metadata = {
+            "dominant_color": dominant_color
+        }
+        
+        # Enregistrer les métadonnées dans un fichier JSON nommé d'après le nom de fichier de l'image
+        with open(f"metadata_{os.path.splitext(filename)[0]}.json", "w") as f:
+            json.dump(metadata, f)
+
+# Parcourir chaque image dans le dossier "images"
+for filename in os.listdir("images"):
+    if filename.endswith(".jpg") or filename.endswith(".png") or filename.endswith(".jpeg"):
+        
+        # Demander à l'utilisateur de taguer l'image en lui présentant la liste de tags prédéfinis
+        print(f"Veuillez taguer l'image {filename} en choisissant parmi les tags suivants :")
+        print(", ".join(tags))
+        user_tags = input().split()
+        
+        # Enregistrer les tags dans un dictionnaire
+        metadata = {
+            "tags": user_tags
+        }
+        
+        # Enregistrer les métadonnées dans un fichier JSON nommé d'après le nom de fichier de l'image
+        with open(f"metadata_{os.path.splitext(filename)[0]}.json", "w") as f:
+            json.dump(metadata, f)
