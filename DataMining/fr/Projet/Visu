@@ -1,0 +1,102 @@
+import os
+from PIL import Image
+import matplotlib.pyplot as plt
+
+
+# Définir le répertoire contenant les images
+image_dir = 'images'
+
+# Créer des dictionnaires pour stocker les informations de chaque image
+year_counts = {}
+size_counts = {}
+orientation_counts = {}
+camera_counts = {}
+color_counts = {}
+
+# Parcourir chaque image dans le dossier
+for filename in os.listdir(image_dir):
+    if filename.endswith(".jpg") or filename.endswith(".png") or filename.endswith(".jpeg"):
+        
+        # Ouvrir l'image avec la bibliothèque PIL
+        image = Image.open(os.path.join(image_dir, filename))
+        
+        # Compter le nombre d'images pour chaque année
+        year = image._getexif().get(36867)[:4] # Extraire l'année de la date de création de l'image
+        if year in year_counts:
+            year_counts[year] += 1
+        else:
+            year_counts[year] = 1
+        
+        # Compter le nombre d'images pour chaque taille
+        size = image.size
+        if size in size_counts:
+            size_counts[size] += 1
+        else:
+            size_counts[size] = 1
+        
+        # Compter le nombre d'images pour chaque orientation
+        if size[0] > size[1]:
+            orientation = "Paysage"
+        else:
+            orientation = "Portrait"
+        if orientation in orientation_counts:
+            orientation_counts[orientation] += 1
+        else:
+            orientation_counts[orientation] = 1
+        
+        # Compter le nombre d'images pour chaque modèle d'appareil photo
+        camera = image._getexif().get(271)
+        if camera in camera_counts:
+            camera_counts[camera] += 1
+        else:
+            camera_counts[camera] = 1
+        
+        # Compter les caractéristiques de couleur pour chaque image
+        colors = image.getcolors()
+        if colors in color_counts:
+            color_counts[colors] += 1
+        else:
+            color_counts[colors] = 1
+
+# Visualiser les informations collectées
+# Nombre d'images par année
+plt.bar(year_counts.keys(), year_counts.values())
+plt.title("Nombre d'images par année")
+plt.xlabel("Année")
+plt.ylabel("Nombre d'images")
+plt.show()
+
+# Nombre d'images par taille
+sizes = list(size_counts.keys())
+counts = list(size_counts.values())
+plt.bar(range(len(size_counts)), counts, tick_label=sizes)
+plt.title("Nombre d'images par taille")
+plt.xlabel("Taille de l'image")
+plt.ylabel("Nombre d'images")
+plt.show()
+
+# Nombre d'images par orientation
+orientations = list(orientation_counts.keys())
+counts = list(orientation_counts.values())
+plt.pie(counts, labels=orientations, autopct='%1.1f%%')
+plt.title("Répartition des orientations d'images")
+plt.show()
+
+# Nombre d'images par modèle d'appareil photo
+cameras = list(camera_counts.keys())
+counts = list(camera_counts.values())
+plt.bar(range(len(camera_counts)), counts, tick_label=cameras)
+plt.title("Nombre d'images par modèle d'appareil photo")
+plt.xlabel("Modèle d'appareil photo")
+plt.ylabel("Nombre d'images")
+plt.show()
+
+# Caractéristiques de couleurs
+color_counts_sorted = dict(sorted(color_counts.items(), key=lambda item: item[1], reverse=True))
+plt.figure(figsize=(8, 6))
+plt.bar(color_counts_sorted.keys(), color_counts_sorted.values())
+plt.title('Caractéristiques de couleurs')
+plt.xlabel('Couleur')
+plt.ylabel('Nombre d\'images')
+plt.show()
+

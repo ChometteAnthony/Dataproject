@@ -1,37 +1,33 @@
-import json  # module pour gérer les fichiers JSON
-from PIL import Image  # module pour manipuler les images
-import requests  # module pour télécharger des fichiers à partir d'URLs
-import os  # module pour créer des dossiers
+import json
+import os
+from PIL import Image
 
 # Créer un dossier appelé "images" (s'il n'existe pas déjà)
 os.mkdir("images")
 
-# Définir une liste d'URLs d'images à télécharger
-image_urls = ['https://example.com/image1.jpg',
-              'https://example.com/image2.png', 'https://example.com/image3.jpeg']
+# Récupérer la liste des fichiers dans le dossier "input_images"
+image_files = os.listdir("input_images")
 
-# Parcourir chaque URL dans la liste
-for url in image_urls:
-    # Télécharger l'image à partir de l'URL
-    response = requests.get(url, stream=True)
+# Parcourir chaque fichier dans la liste
+for file in image_files:
+    # Vérifier si le fichier est une image
+    if file.endswith((".jpg", ".png", ".jpeg")):
+        # Ouvrir l'image avec le module PIL
+        im = Image.open(f'input_images/{file}')
 
-    # Enregistrer l'image dans le dossier "images"
-    with open(f'images/{os.path.basename(url)}', 'wb') as f:
-        f.write(response.content)
+        # Enregistrer les métadonnées de l'image dans un dictionnaire
+        metadata = {
+            'size': im.size,
+            'format': im.format,
+            'orientation': im.mode,
+            'date_creation': '2023-04-04',  # mettre ici la date de création réelle de l'image
+            # mettre ici le modèle de l'appareil photo réel
+            'model_appareil': 'Canon EOS 5D Mark IV'
+        }
 
-    # Ouvrir l'image avec le module PIL
-    im = Image.open(f'images/{os.path.basename(url)}')
+        # Enregistrer les métadonnées dans un fichier JSON nommé d'après le nom du fichier
+        with open(f'metadata_{file}.json', 'w') as f:
+            json.dump([metadata], f)
 
-    # Enregistrer les métadonnées de l'image dans un dictionnaire
-    metadata = {
-        'size': im.size,
-        'format': im.format,
-        'orientation': im.mode,
-        'date_creation': '2023-04-04',  # mettre ici la date de création réelle de l'image
-        # mettre ici le modèle de l'appareil photo réel
-        'model_appareil': 'Canon EOS 5D Mark IV'
-    }
-
-    # Enregistrer les métadonnées dans un fichier JSON nommé d'après l'URL de l'image
-    with open(f'metadata_{os.path.basename(url)}.json', 'w') as f:
-        json.dump([metadata], f)
+        # Enregistrer l'image dans le dossier "images"
+        im.save(f'images/{file}')
